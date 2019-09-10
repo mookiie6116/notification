@@ -1,0 +1,86 @@
+const express = require("express");
+const router = express.Router();
+const connectdb = require("./../dbconnect");
+const notify = require("./../models/Notify");
+const moment = require('moment');
+const bodyParser = require("body-parser");
+
+var urlencodedParser = bodyParser.urlencoded({
+  extended: false
+});
+
+router.get('/view/:id/:limit/:offset', function (req, res) {
+  let id = req.params.id
+  let limit = parseInt(req.params.limit)
+  let offset = parseInt(req.params.offset)
+  let dataSet = {data:{},total:{}}
+  connectdb.then(db => {
+    notify.find({ "to": id }, {
+      _id:1,
+      id: 1,
+      msg: 1,
+      read: 1,
+      refId: 1,
+      createdAt: 1
+    }).sort({
+      createdAt: -1
+    }).limit(limit).skip(offset)
+    .then(data => {
+      dataSet.data = data
+      notify.find({ "to": id }, {
+        _id:1,
+        id: 1,
+        msg: 1,
+        read: 1,
+        refId: 1,
+        updatedAt: 1
+      }).then(total =>{
+        dataSet.total = total.length
+        res.status(200).json(dataSet);
+      })
+    });
+  })
+})
+
+router.post('/add', urlencodedParser, function (req, res) {
+  let { id, msg, refId, to, createdBy } = req.body
+  let notifyData = new notify({
+    id: id,
+    refId: refId,
+    msg: msg,
+    to: to,
+    createdAt: moment().format('YYYY-MM-DD HH:mm:ss'),
+    createdBy: createdBy,
+    updatedBy: createdBy
+  })
+  notifyData.save(function (err) {
+    if (err) return res.json(err)
+    return res.status(200).json("OK")
+  })
+
+})
+
+router.post('/edit', urlencodedParser, function (req, res) {
+  let { id, msg, refId, to, updateBy } = req.body
+  connectdb.then(db => {
+    notify.findOneAndUpdate({ id: id }, { msg: msg, refId: refId, to: to, updateBy: updateBy }).then(data => {
+      return res.status(200).json("OK")
+    }).catch(err=>{
+      return res.status(500).json("update fail")
+    })
+  })
+})
+
+router.get('/read/:userId/:id', function (req, res) {
+  let id = req.params.id
+  let userId = req.params.userId
+  connectdb.then(db => {
+    notify.findOneAndUpdate({ _id: id }, { read: true ,updateBy: userId}).then(data => {
+      return res.status(200).json("OK")
+    }).catch(err=>{
+      return res.status(500).json("update fail")
+    })
+  })
+})
+
+module.exports = router;
