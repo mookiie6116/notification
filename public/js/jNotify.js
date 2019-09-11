@@ -119,6 +119,7 @@ function getNotify(userId, limit, offset) {
         div.setAttribute("onClick", "readNotify('" + item._id + "')");
         div.setAttribute("data-id", item.id);
         body.appendChild(div)
+        $(".loadmore-notify").removeClass("d-none")
       })
     } else {
       let div = document.createElement("div");

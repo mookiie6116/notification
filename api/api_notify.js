@@ -60,6 +60,28 @@ router.post('/add', urlencodedParser, function (req, res) {
 
 })
 
+router.post('/add-array', urlencodedParser, function (req, res) {
+  let { id, msg, refId, to, createdBy } = req.body
+  for (let index = 0; index <= to.length; index++) {
+    const element = to[index];
+      if (index == to.length) {
+        return res.status(200).json("OK")
+      }else{
+      let notifyData = new notify({
+            id: id,
+            refId: refId,
+            msg: msg,
+            to: element,
+            createdAt: moment().format('YYYY-MM-DD HH:mm:ss'),
+            createdBy: createdBy,
+            updatedBy: createdBy
+          })
+          notifyData.save()
+      }
+  }
+
+})
+
 router.post('/edit', urlencodedParser, function (req, res) {
   let { id, msg, refId, to, updateBy } = req.body
   connectdb.then(db => {
