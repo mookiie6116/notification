@@ -6,7 +6,7 @@ const NotifySchema = new Schema(
     id:{
       type: String
     },
-    refId:{
+    ref_no:{
       type: String
     },
     msg:{

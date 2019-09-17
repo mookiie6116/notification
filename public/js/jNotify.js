@@ -62,8 +62,10 @@ var socket = io();
         })
       } else {
         let div = document.createElement("div");
-        div.setAttribute("class", `row m-0 text-center font-weight-bolder`);
-        div.append('ไม่พบข้อมูลการแจ้งเตือน')
+        let span = document.createElement("span")
+        div.setAttribute("class", "row m-0 notify-none");
+        span.setAttribute("class", "col-12 text-center  font-weight-bolder")
+        div.appendChild(span).append('ไม่พบข้อมูลการแจ้งเตือน')
         body.appendChild(div)
       }
     })
@@ -124,8 +126,8 @@ function getNotify(userId, limit, offset) {
     } else {
       let div = document.createElement("div");
       let span = document.createElement("span")
-      div.setAttribute("class", "row m-0");
-      span.setAttribute("class", "col-12 text-center font-weight-bolder")
+      div.setAttribute("class", "row m-0 notify-none");
+      span.setAttribute("class", "col-12 text-center  font-weight-bolder")
       div.appendChild(span).append('ไม่พบข้อมูลการแจ้งเตือน')
       body.appendChild(div)
     }

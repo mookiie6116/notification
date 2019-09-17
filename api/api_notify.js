@@ -20,7 +20,7 @@ router.get('/view/:id/:limit/:offset', function (req, res) {
       id: 1,
       msg: 1,
       read: 1,
-      refId: 1,
+      ref_no: 1,
       createdAt: 1
     }).sort({
       createdAt: -1
@@ -32,7 +32,7 @@ router.get('/view/:id/:limit/:offset', function (req, res) {
         id: 1,
         msg: 1,
         read: 1,
-        refId: 1,
+        ref_no: 1,
         updatedAt: 1
       }).then(total =>{
         dataSet.total = total.length
@@ -42,11 +42,11 @@ router.get('/view/:id/:limit/:offset', function (req, res) {
   })
 })
 
-router.post('/add', urlencodedParser, function (req, res) {
-  let { id, msg, refId, to, createdBy } = req.body
+router.post('/add-one', urlencodedParser, function (req, res) {
+  let { id, msg, ref_no, to, createdBy } = req.body
   let notifyData = new notify({
     id: id,
-    refId: refId,
+    ref_no: ref_no,
     msg: msg,
     to: to,
     createdAt: moment().format('YYYY-MM-DD HH:mm:ss'),
@@ -60,8 +60,8 @@ router.post('/add', urlencodedParser, function (req, res) {
 
 })
 
-router.post('/add-array', urlencodedParser, function (req, res) {
-  let { id, msg, refId, to, createdBy } = req.body
+router.post('/add', urlencodedParser, function (req, res) {
+  let { id, msg, ref_no, to, createdBy } = req.body
   for (let index = 0; index <= to.length; index++) {
     const element = to[index];
       if (index == to.length) {
@@ -69,7 +69,7 @@ router.post('/add-array', urlencodedParser, function (req, res) {
       }else{
       let notifyData = new notify({
             id: id,
-            refId: refId,
+            ref_no: ref_no,
             msg: msg,
             to: element,
             createdAt: moment().format('YYYY-MM-DD HH:mm:ss'),
@@ -83,9 +83,9 @@ router.post('/add-array', urlencodedParser, function (req, res) {
 })
 
 router.post('/edit', urlencodedParser, function (req, res) {
-  let { id, msg, refId, to, updateBy } = req.body
+  let { id, msg, ref_no, to, updateBy } = req.body
   connectdb.then(db => {
-    notify.findOneAndUpdate({ id: id }, { msg: msg, refId: refId, to: to, updateBy: updateBy }).then(data => {
+    notify.findOneAndUpdate({ id: id }, { msg: msg, ref_no: ref_no, to: to, updateBy: updateBy }).then(data => {
       return res.status(200).json("OK")
     }).catch(err=>{
       return res.status(500).json("update fail")
