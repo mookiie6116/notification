@@ -29,6 +29,10 @@ const NotifySchema = new Schema(
     updatedBy:{
       type: String,
       default: "system"
+    },
+    status:{
+      type: String,
+      default: 1
     }
   },
   {
