@@ -25,15 +25,20 @@ var socket = io();
         }
       }
     }).done(data => {
-      if ((offset + limit + 1) >= data.total) {
+      if ((offset + 1) * limit >= data.total) {
         $(".loadmore-notify").addClass("d-none")
+      }else{
+        $(".loadmore-notify").removeClass("d-none")
       }
+
       if (data.total) {
         data.data.map(function (item) {
           let div = document.createElement("div");
           let div_col8 = document.createElement("span");
           let div_col4 = document.createElement("span");
-          let span_msg = document.createElement("span")
+          let span_msg = document.createElement("span");
+          let span_tooltip = document.createElement("span");
+          let span_tooltip_active = document.createElement("span");
           let span_date = document.createElement("small")
           let br = document.createElement('br')
           div.setAttribute("class", `row m-0 notify notify-${item._id}`);
@@ -43,9 +48,9 @@ var socket = io();
             span_msg.setAttribute("class", 'font-weight-bolder');
             span_date.setAttribute("class", 'font-weight-bolder');
           }
-          let msg = item.msg
+          let msg = item.ref_no+" "+item.msg
           if (100 < msg.length) {
-            msg = msg.substring(0, 49) + ". . ."
+            msg = msg.substring(0, 36) + "..."
           }
           span_msg.append(msg)
           div_col8.appendChild(span_msg)
@@ -56,7 +61,14 @@ var socket = io();
           div_col4.appendChild(span_date)
           div.appendChild(div_col8)
           div.appendChild(div_col4)
-          div.setAttribute("onClick", "readNotify('" + item._id + "')");
+          span_tooltip.setAttribute("class", 'tooltip-text');
+          // span_tooltip_active.setAttribute("class", 'tooltip-active');
+          // span_tooltip.appendChild(span_tooltip_active)
+          span_tooltip.append(item.msg)
+          div.appendChild(span_tooltip)
+          if (!item.read) {
+            div.setAttribute("onClick", "readNotify('" + item._id + "')");
+          }
           div.setAttribute("data-id", item.id);
           body.appendChild(div)
         })
@@ -88,6 +100,8 @@ function getNotify(userId, limit, offset) {
     $(".body-notify").html("")
     if ((offset + 1) * limit >= data.total) {
       $(".loadmore-notify").addClass("d-none")
+    }else{
+      $(".loadmore-notify").removeClass("d-none")
     }
     if (data.total) {
       data.data.map(function (item) {
@@ -95,12 +109,17 @@ function getNotify(userId, limit, offset) {
 
         let div_col8 = document.createElement("span");
         let div_col4 = document.createElement("span");
+        let ref = document.createElement("div")
         let span_msg = document.createElement("span")
+        let span_tooltip = document.createElement("span")
+        let span_tooltip_active = document.createElement("span")
         let span_date = document.createElement("small")
         let br = document.createElement('br')
         div.setAttribute("class", `row m-0 notify notify-${item._id}`);
         div_col8.setAttribute("class", 'col-12 padding-right-0');
         div_col4.setAttribute("class", 'col-12 text-right padding-left-0');
+        ref.setAttribute("class", 'font-weight-bolder ref-text');
+        ref.setAttribute("id", 'ref_no');
         if (!item.read) {
           span_msg.setAttribute("class", 'font-weight-bolder');
           span_date.setAttribute("class", 'font-weight-bolder');
@@ -109,19 +128,31 @@ function getNotify(userId, limit, offset) {
         if (100 < msg.length) {
           msg = msg.substring(0, 36) + "..."
         }
+        ref.append(item.ref_no)
         span_msg.append(msg)
+        div_col8.appendChild(ref)
         div_col8.appendChild(span_msg)
-        let fromNow = moment(item.createdAt).fromNow()
+        let fromNow = ""
+        if (moment().diff(moment(item.createdAt), 'days') <= 1) {
+           fromNow = moment(item.createdAt).fromNow()
+        }else{
+           fromNow = moment(item.createdAt).format('DD/MM/YYYY')
+        }
         span_date.append(fromNow)
         span_date.appendChild(br)
-        // span_date.append(moment(item.createdAt).format('DD/MM/YYYY'))
         div_col4.appendChild(span_date)
         div.appendChild(div_col8)
         div.appendChild(div_col4)
-        div.setAttribute("onClick", "readNotify('" + item._id + "')");
+        span_tooltip.setAttribute("class", 'tooltip-text');
+        // span_tooltip_active.setAttribute("class", 'tooltip-active');
+        // span_tooltip.appendChild(span_tooltip_active)
+        span_tooltip.append(item.msg)
+        div.appendChild(span_tooltip)
+        if (!item.read) {
+          div.setAttribute("onClick", "readNotify('" + item._id + "')");
+        }
         div.setAttribute("data-id", item.id);
         body.appendChild(div)
-        $(".loadmore-notify").removeClass("d-none")
       })
     } else {
       let div = document.createElement("div");
